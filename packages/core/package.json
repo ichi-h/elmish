@@ -1,8 +1,9 @@
 {
   "name": "@ichi-h/elmish",
   "author": "ichi-h",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "license": "MIT",
+  "readme": "../../README.md",
   "private": false,
   "description": "A state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture.",
   "main": "./dist/elmish.umd.js",
