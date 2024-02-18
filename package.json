@@ -10,7 +10,7 @@
     "dev": "turbo dev --parallel",
     "format": "prettier --write .",
     "lintfix": "eslint . --fix --ignore-path .eslintignore",
-    "publish": "pnpm build && pnpm publish --filter @ichi-h/elmish"
+    "publish": "pnpm build && pnpm publish --filter @ichi-h/elmish --access=public"
   },
   "devDependencies": {
     "@types/node": "20.11.0",
