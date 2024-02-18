@@ -5,11 +5,13 @@ export type BaseMessage = { type: string };
 
 export type Send<Msg extends BaseMessage> = (message: Msg) => void;
 
-type ReturnModel<Model, Msg extends BaseMessage> =
+export type Cmd<Msg extends BaseMessage> = () => Promise<Msg>;
+
+export type ReturnModel<Model, Msg extends BaseMessage> =
   | Model
   | [Model]
   | [Model, undefined]
-  | [Model, () => Promise<Msg>];
+  | [Model, Cmd<Msg>];
 
 export type Update<Model, Msg extends BaseMessage> = (
   model: Model,
