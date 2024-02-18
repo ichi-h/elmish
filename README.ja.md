@@ -2,7 +2,7 @@
 
 [![LICENSE](https://img.shields.io/github/license/ichi-h/elmish)](./LICENSE) [![npm version](https://img.shields.io/npm/v/@ichi-h/elmish.svg?style=flat)](https://www.npmjs.com/package/@ichi-h/elmish)
 
-@ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。@ichi-h/elmishはビジネスロジックをその他の複雑な要因から分離し、シンプルに保つことを目的としています。
+@ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。@ichi-h/elmishはビジネスロジックをその他の複雑な要因から分離し、リーダブルに保つことを目的としています。
 
 ## Usage
 

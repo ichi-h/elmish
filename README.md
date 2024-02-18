@@ -4,7 +4,7 @@
 
 日本語版は[こちら](./README.ja.md)
 
-@ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. @ichi-h/elmish aims to keep business logic separate from other complex factors and keep it simple.
+@ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. @ichi-h/elmish aims to keep business logic separate from other complex factors and keep it readable.
 
 ## Usage
 
