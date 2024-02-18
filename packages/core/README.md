@@ -277,9 +277,9 @@ So what does the actual code look like? I used useState to manage the value of c
 
 What is the problem with this?
 
-For example, if there are some breaking changes in React, you need to fix that, but if your business logic is tightly coupled with React, you are very likely to rewrite the business logic together, **even though the business logic has not changed. **
+For example, if there are some breaking changes in React, you need to fix that, but if your business logic is tightly coupled with React, you are very likely to rewrite the business logic together, **even though the business logic has not changed.**
 
-And what if a more attractive UI library than React appears and you have to replace it?　This is very hard. Because you would literally have to rewrite almost all of the code.
+And what if a more attractive UI library than React appears and you have to replace it? This is very hard. Because you would literally have to rewrite almost all of the code.
 
 Also, if the React-specific writing style is included in the business logic, it may become noise and make it difficult to see the essential aspects of the logic.
 
