@@ -26,29 +26,29 @@ const randomNum = () => Math.floor(Math.random() * 100);
 const update: Update<Model, Msg> = (model, msg) => {
   switch (msg.type) {
     case "increment":
-      return { newModel: { count: model.count + 1 } };
+      return { count: model.count + 1 };
     case "decrement":
-      return { newModel: { count: model.count - 1 } };
+      return { count: model.count - 1 };
     case "asyncIncrement":
-      return {
-        newModel: model,
-        cmd: async () =>
+      return [
+        model,
+        async () =>
           new Promise((resolve) => {
             setTimeout(() => {
               resolve({ type: "increment" });
             }, randomNum());
           }),
-      };
+      ];
     case "asyncDecrement":
-      return {
-        newModel: model,
-        cmd: async () =>
+      return [
+        model,
+        async () =>
           new Promise((resolve) => {
             setTimeout(() => {
               resolve({ type: "decrement" });
             }, randomNum());
           }),
-      };
+      ];
   }
 };
 
@@ -81,15 +81,15 @@ describe("elmish test", () => {
   });
 
   test("initialize element with function", async () => {
-    const init: Init<Model, Msg> = () => ({
+    const init: Init<Model, Msg> = () => [
       model,
-      cmd: async () =>
+      async () =>
         new Promise((resolve) => {
           setTimeout(() => {
             resolve({ type: "increment" });
           }, 1);
         }),
-    });
+    ];
     const useElement = elmish();
     useElement(key, init, update, updateViewMock);
     await new Promise((resolve) => setTimeout(resolve, 10));

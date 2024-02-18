@@ -18,16 +18,23 @@ export const createElement =
     const send = (message: Msg) => {
       const model = store.read(key) as Model;
 
-      const { newModel, cmd } = update(deepClone(model), message);
+      const result = update(deepClone(model), message);
+      const [newModel, cmd] = Array.isArray(result)
+        ? [result[0], result[1]]
+        : [result, undefined];
+
       store.put(key, newModel);
       view(newModel);
       if (cmd) cmd().then(send);
     };
 
     if (!store.exists(key)) {
-      const { model: initModel, cmd: initCmd } = isModel(init)
-        ? { model: init, cmd: undefined }
-        : init();
+      const [initModel, initCmd] = (() => {
+        if (isModel(init)) return [init, undefined];
+        const result = init();
+        if (Array.isArray(result)) return [result[0], result[1]];
+        return [result, undefined];
+      })();
 
       store.put(key, initModel);
       if (initCmd) initCmd().then(send);
