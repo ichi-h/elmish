@@ -5,34 +5,28 @@ import { Model, Message } from "./data";
 export const update: Update<Model, Message> = (model, message) => {
   switch (message.type) {
     case "increment": {
-      return {
-        newModel: { ...model, count: model.count + 1 },
-      };
+      return { ...model, count: model.count + 1 };
     }
 
     case "decrement": {
-      return {
-        newModel: { ...model, count: model.count - 1 },
-      };
+      return { ...model, count: model.count - 1 };
     }
 
     case "startReset": {
-      return {
-        newModel: { ...model, loader: "loading" },
-        cmd: async () => {
+      return [
+        { ...model, loader: "loading" },
+        async () => {
           return new Promise((resolve) => {
             setTimeout(() => {
               resolve({ type: "endReset" });
             }, 1000);
           });
         },
-      };
+      ];
     }
 
     case "endReset": {
-      return {
-        newModel: { ...model, count: 0, loader: "idle" },
-      };
+      return { ...model, count: 0, loader: "idle" };
     }
   }
 };
