@@ -30,3 +30,5 @@
 
 /index.json
 .turbo
+
+tsconfig.tsbuildinfo
