@@ -10,8 +10,6 @@
 
 ### Install
 
-Coming soon...
-
 ```bash
 npm install @ichi-h/elmish
 ```

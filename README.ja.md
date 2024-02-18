@@ -8,8 +8,6 @@
 
 ### Install
 
-準備中...
-
 ```bash
 npm install @ichi-h/elmish
 ```
