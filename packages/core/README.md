@@ -6,8 +6,6 @@
 
 @ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. @ichi-h/elmish aims to keep business logic separate from other complex factors and keep it simple.
 
-**I DO NOT RECOMMEND USING THIS LIBRARY.** If you must use this, recommend that you fork this repository and use it.
-
 ## Usage
 
 ### Install
@@ -54,39 +52,35 @@ export const key: Key<Model> = Symbol();
 
 ```typescript
 // update.ts
+import { Update } from "@ichi-h/elmish";
+
 import { Model, Message } from "./data";
 
-export const update = (model: Model, message: Message) => {
+export const update: Update<Model, Message> = (model, message) => {
   switch (message.type) {
     case "increment": {
-      return {
-        newModel: { ...model, count: model.count + 1 },
-      };
+      return { ...model, count: model.count + 1 };
     }
 
     case "decrement": {
-      return {
-        newModel: { ...model, count: model.count - 1 },
-      };
+      return { ...model, count: model.count - 1 };
     }
 
     case "startReset": {
-      return {
-        newModel: { ...model, loader: "loading" },
-        cmd: async () => {
+      return [
+        { ...model, loader: "loading" },
+        async () => {
           return new Promise((resolve) => {
             setTimeout(() => {
               resolve({ type: "endReset" });
             }, 1000);
           });
         },
-      };
+      ];
     }
 
     case "endReset": {
-      return {
-        newModel: { ...model, count: 0, loader: "idle" },
-      };
+      return { ...model, count: 0, loader: "idle" };
     }
   }
 };
@@ -238,7 +232,7 @@ See [Guide to the Elm Language](https://guide.elm-lang.org/) for more informatio
 
 Many state management systems in this world are designed to rely on UI libraries. This is necessary to achieve a declarative UI. This is necessary for a declarative UI, because when the state is updated, the UI can automatically change without manipulating the DOM. This is very convenient!
 
-However, this often leads to tightly coupling business logic with UI libraries and state management systems. Let's write a simple counter application that satisfies the following use case in the common React writing style.
+However, this often leads to tightly coupling business logic with UI libraries and state management systems. Let's write a simple counter application that satisfies the following requirements in the common React writing style.
 
 - Clicking the + button increases the count by 1.
 - Clicking the - button decreases the count by 1.
@@ -273,7 +267,7 @@ export const App = () => {
 
 It is important to note that React does not appear in any of the above use cases, which is natural since React is only a means to achieve the use cases.
 
-So what does the actual code look like? I used useState to manage the value of count. This is the state in which the business logic that the counter should realize is embedded in the React ecosystem.
+So what does the actual code look like? I used useState to manage the value of count. This means that the business logic of the use case that the counter should implement is embedded in the React ecosystem.
 
 What is the problem with this?
 
@@ -285,7 +279,7 @@ Also, if the React-specific writing style is included in the business logic, it 
 
 Of course, if the example were this simple, it would not be a problem. However, production business logic is much more complex, and state management can be cumbersome. In such an environment, the separation of UI library and business logic becomes more important.
 
-### Keep your business logic clean!
+### Keep your business logic readable!
 
 In @ichi-h/elmish, the UI update logic is injected from the outside so that the business logic can be decoupled from the UI library.
 
@@ -296,14 +290,22 @@ Then choose what method to use to display the UI, depending on the situation.
 - [vanilla-typescript](#use-in-vanilla-typescript)
 - [react](#use-in-react)
 - [vue](#use-in-vue)
+- etc...
+
+## Why use @ichi-h/elmish?
+
+The benefit of using @ichi-h/elmish is almost the same as separating the business logic from the UI library. In other words:
+
+- Concentrate on writing business logic based on the Elm Architecture without worrying about how to write UI libraries.
+- Even if there are disruptive changes to the UI library, your business logic can be protected from those changes.
+- Eliminating the UI library-specific writing style keeps _noise_ out of your business logic and keeps the code easy to understand.
+- Your business logic can be reused when replacing UI libraries.
 
 ## Why NOT use @ichi-h/elmish?
 
-After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely true and that is why I do not recommend using this library.
+After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely true and @ichi-h/elmish should not be used if cleanliness of code is important.
 
-To begin with, this library was created for me to use design patterns written in Vanilla TypeScript in my projects to keep the business logic clean when I develop web front-ends. Therefore, it is not a big problem if the products I create depend on this library, because I have complete control over this.
-
-If you insist on clean, you can refer to designs such as DDD or Clean Architecture. If you must use this library, we recommend that you fork @ichi-h/elmish and use it.
+If you insist on cleanliness, you can refer to designs such as DDD and Clean Architecture, and if you are more concerned about Elm Architecture, you can also implement a mechanism like this library on your own.
 
 ## License
 

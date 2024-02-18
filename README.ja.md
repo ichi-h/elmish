@@ -4,8 +4,6 @@
 
 @ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。@ichi-h/elmishはビジネスロジックをその他の複雑な要因から分離し、シンプルに保つことを目的としています。
 
-**このライブラリの使用は推奨していません。** どうしてもこれを使いたい場合は、このリポジトリをforkして使用することをおすすめします。
-
 ## Usage
 
 ### Install
@@ -52,39 +50,35 @@ export const key: Key<Model> = Symbol();
 
 ```typescript
 // update.ts
+import { Update } from "@ichi-h/elmish";
+
 import { Model, Message } from "./data";
 
-export const update = (model: Model, message: Message) => {
+export const update: Update<Model, Message> = (model, message) => {
   switch (message.type) {
     case "increment": {
-      return {
-        newModel: { ...model, count: model.count + 1 },
-      };
+      return { ...model, count: model.count + 1 };
     }
 
     case "decrement": {
-      return {
-        newModel: { ...model, count: model.count - 1 },
-      };
+      return { ...model, count: model.count - 1 };
     }
 
     case "startReset": {
-      return {
-        newModel: { ...model, loader: "loading" },
-        cmd: async () => {
+      return [
+        { ...model, loader: "loading" },
+        async () => {
           return new Promise((resolve) => {
             setTimeout(() => {
               resolve({ type: "endReset" });
             }, 1000);
           });
         },
-      };
+      ];
     }
 
     case "endReset": {
-      return {
-        newModel: { ...model, count: 0, loader: "idle" },
-      };
+      return { ...model, count: 0, loader: "idle" };
     }
   }
 };
@@ -216,19 +210,19 @@ Elm Architectureとは、Elm言語で採用されているWebアプリケーシ�
 
 > ![Diagram of The Elm Architecture](./assets/elm_architecture.svg)
 >
-> The Elm program produces HTML to show on screen, and then the computer sends back messages of what is going on. "They clicked a button!"
+> Elm が画面に表示するためのHTMLを出力し、コンピュータは画面の中で起きたこと、例えば「ボタンがクリックされたよ！」というようなメッセージを Elm へ送り返します。
 >
-> What happens within the Elm program though? It always breaks into three parts:
+> さて、Elm プログラムの中では何が起きているのでしょうか？ Elm では、プログラムは必ず3つのパーツに分解できます。
 >
-> - **Model** — the state of your application
-> - **View** — a way to turn your state into HTML
-> - **Update** — a way to update your state based on messages
+> - **Model** — アプリケーションの状態
+> - **View** — 状態を HTML に変換する方法
+> - **Update** — メッセージを使って状態を更新する方法
 >
-> These three concepts are the core of **The Elm Architecture**.
+> この3つのコンセプトこそ、**The Elm Architecture** の核心なのです。
 >
-> \- [The Elm Architecture · An Introduction to Elm](https://guide.elm-lang.org/architecture/)
+> \- [The Elm Architecture · An Introduction to Elm](https://guide.elm-lang.jp/architecture/)
 
-詳しくは [Elm言語のガイド](https://guide.elm-lang.org/) を参照してください。とても勉強になります！
+詳しくは [Elm言語のガイド](https://guide.elm-lang.jp/) を参照してください。とても勉強になります！
 
 ## @ichi-h/elmishの思想
 
@@ -236,7 +230,7 @@ Elm Architectureとは、Elm言語で採用されているWebアプリケーシ�
 
 この世に存在する多くの状態管理システムは、UIライブラリに依存する設計になっています。これは宣言的UIを実現する上で必要なことです。つまり、状態が更新されれば、DOMを操作せずとも自動的にUIも変更できるようになるからです。非常に便利です！
 
-しかし、これはしばしばビジネスロジックとUIライブラリや状態管理システムを密結合させてしまうことになります。以下のユースケースを満たす簡単なカウンターアプリケーションを、よく見かけるReactの書き方で書いてみましょう。
+しかし、これはしばしばビジネスロジックとUIライブラリや状態管理システムを密結合させてしまうことになります。以下の要件を満たす簡単なカウンターアプリケーションを、よく見かけるReactの書き方で書いてみましょう。
 
 - +ボタンをクリックするとカウントが1増える
 - -ボタンをクリックするとカウントが1減る
@@ -271,19 +265,19 @@ export const App = () => {
 
 ここで注目したい点は、上記のユースケースの中にReactは現れないということです。Reactはあくまでユースケースを実現する手段ですので、それは当たり前のことです。
 
-では実際のコードはどのようになっているでしょうか？　countの値を管理するためにuseStateを使っています。これはカウンターが実現すべきビジネスロジックがReactのエコシステムに埋め込まれた状態です。
+では実際のコードはどのようになっているでしょうか？　countの値を管理するためにuseStateを使っており、これはカウンターが実現すべきユースケースのビジネスロジックがReactのエコシステムに埋め込まれた状態になっています。
 
 これの何が問題なのでしょうか？
 
-例えば、Reactに破壊的変更があった場合、その分を修正する必要がありますが、ビジネスロジックがReactと密結合している場合、ビジネスロジックを一緒に書き直す可能性が非常に高いです、**ビジネスロジックが変わったわけでもないのに。**
+例えば、Reactに破壊的変更があった場合、その分を修正する必要がありますが、ビジネスロジックがReactと密結合している場合、ビジネスロジックを一緒に書き直す可能性が非常に高くなります、**ビジネスロジックが変わったわけではないのに。**
 
-また、Reactよりももっと魅力的なUIライブラリが現れ、リプレイスを行うことになった場合はどうでしょうか？　これは非常に大変です。なぜなら文字通り、ほぼ全てのコードを書き直す必要があるからです。
+また、Reactよりももっと魅力的なUIライブラリが現れ、リプレイスを行うことになった場合はどうでしょうか？　これはとても大変です。なぜなら文字通り、ほぼ全てのコードを書き直す必要があるからです。
 
 他にも、React固有の書き方がビジネスロジックの中に含まれると、それがノイズとなってロジックの本質的なところが見えにくくなることもあるでしょう。
 
 もちろん、ここまでシンプルな例であれば問題になりません。しかし、プロダクションのビジネスロジックはもっと複雑で、状態管理も煩雑になります。そうした環境において、UIライブラリとビジネスロジックを分離することの重要度は高くなります。
 
-### ビジネスロジックをクリーンに保とう
+### ビジネスロジックをリーダブルにしよう
 
 @ichi-h/elmishでは、UIの更新ロジックを外側から注入することで、ビジネスロジックをUIライブラリから切り離せるようにしました。
 
@@ -294,14 +288,22 @@ export const App = () => {
 - [vanilla-typescript](#use-in-vanilla-typescript)
 - [react](#use-in-react)
 - [vue](#use-in-vue)
+- etc...
+
+## なぜ@ichi-h/elmishを使うのか？
+
+@ichi-h/elmishを使うメリットは、UIライブラリからビジネスロジックを分離することとほぼ同じです。つまり、
+
+- UIライブラリの書き方を気にすることなく、Elm Architectureに基づいてビジネスロジックの記述に集中することができる。
+- UIライブラリに破壊的変更があったとしても、ビジネスロジックをその変更から守ることができる。
+- UIライブラリ固有の書き方を排除することで、ビジネスロジックから _ノイズ_ を排除し、理解しやすいコードを保つことができる。
+- UIライブラリをリプレイスする際に、ビジネスロジックを再利用できる。
 
 ## なぜ@ichi-h/elmishを「使わない」のか？
 
-ここまでの話を聞いて、以下のように考える人がいるかもしれません。「ビジネスロジックを@ichi-h/elmishに依存させることはクリーンではない！」これは間違いなく正しく、それがこのライブラリの使用を推奨しない理由です。
+ここまでの話を聞いて、以下のように考える人がいるかもしれません。「ビジネスロジックを@ichi-h/elmishに依存させることはクリーンではない！」これは間違いなく正しく、コードのクリーンさを重視する場合は@ichi-h/elmishを使うべきではありません。
 
-そもそもこのライブラリは、私がWebフロントエンドの開発を行うとき、ビジネスロジックをクリーンに保つために、純粋なTypeScriptで記述したデザインパターンを使いまわすために作成したものです。そのため、私が作るプロダクトがこのライブラリに依存していたとしても大きな問題になりません、これを完全にコントロールできますからね。
-
-もしクリーンにこだわるのであれば、DDDやClean Architectureなどの設計を参考にすると良いでしょう。どうしてもこのライブラリを使いたい場合は、@ichi-h/elmishをforkして使用することをおすすめします。
+もしクリーンにこだわるのであれば、DDDやClean Architectureなどの設計を参考にしたり、Elm Architectureにこだわるのであれば、このライブラリのような仕組みを独自で実装してしまうのも一つの手です。
 
 ## ライセンス
 
