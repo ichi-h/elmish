@@ -9,7 +9,8 @@
     "build": "turbo build",
     "dev": "turbo dev --parallel",
     "format": "prettier --write .",
-    "lintfix": "eslint . --fix --ignore-path .eslintignore"
+    "lintfix": "eslint . --fix --ignore-path .eslintignore",
+    "publish": "pnpm build && pnpm publish --filter @ichi-h/elmish"
   },
   "devDependencies": {
     "@types/node": "20.11.0",
