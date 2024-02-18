@@ -1,0 +1,10 @@
+/**/*.config.ts
+/**/*.config.js
+
+/**/node_modules
+/**/.pnpm-store
+
+/**/dist
+/**/build
+
+pnpm-lock.yaml

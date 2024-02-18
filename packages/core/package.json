@@ -1,0 +1,14 @@
+{
+  "name": "@ichi-h/elmish",
+  "version": "0.1.0",
+  "private": true,
+  "main": "./dist/elmish.umd.js",
+  "module": "./dist/elmish.es.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc --noEmit && vite build"
+  }
+}
