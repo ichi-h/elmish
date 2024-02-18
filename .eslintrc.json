@@ -8,7 +8,7 @@
   "plugins": ["import", "unused-imports", "@typescript-eslint"],
   "rules": {
     "@typescript-eslint/no-unused-vars": [
-      "warn",
+      "error",
       {
         "argsIgnorePattern": "^_"
       }
