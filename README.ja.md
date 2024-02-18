@@ -18,9 +18,9 @@ npm install @ichi-h/elmish
 
 ```typescript
 // libs/elmish.ts
-import { createElmish } from "@ichi-h/elmish";
+import { createElement } from "@ichi-h/elmish";
 
-const useElmish = createElmish();
+const useElement = createElement();
 ```
 
 [#write-logic]: write-logic
