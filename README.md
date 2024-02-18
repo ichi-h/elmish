@@ -1,5 +1,7 @@
 # @ichi-h/elmish
 
+[![LICENSE](https://img.shields.io/github/license/ichi-h/elmish)](./LICENSE) [![npm version](https://img.shields.io/npm/v/@ichi-h/elmish.svg?style=flat)](https://www.npmjs.com/package/@ichi-h/elmish)
+
 日本語版は[こちら](./README.ja.md)
 
 @ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. @ichi-h/elmish aims to keep business logic separate from other complex factors and keep it simple.
@@ -295,7 +297,7 @@ Then choose what method to use to display the UI, depending on the situation.
 - [react](#use-in-react)
 - [vue](#use-in-vue)
 
-## Why NOT use @ichi-h/?
+## Why NOT use @ichi-h/elmish?
 
 After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely true and that is why I do not recommend using this library.
 

@@ -1,5 +1,7 @@
 # @ichi-h/elmish
 
+[![LICENSE](https://img.shields.io/github/license/ichi-h/elmish)](./LICENSE) [![npm version](https://img.shields.io/npm/v/@ichi-h/elmish.svg?style=flat)](https://www.npmjs.com/package/@ichi-h/elmish)
+
 @ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。@ichi-h/elmishはビジネスロジックをその他の複雑な要因から分離し、シンプルに保つことを目的としています。
 
 **このライブラリの使用は推奨していません。** どうしてもこれを使いたい場合は、このリポジトリをforkして使用することをおすすめします。
@@ -293,7 +295,7 @@ export const App = () => {
 - [react](#use-in-react)
 - [vue](#use-in-vue)
 
-## なぜ@ichi-h/を「使わない」のか？
+## なぜ@ichi-h/elmishを「使わない」のか？
 
 ここまでの話を聞いて、以下のように考える人がいるかもしれません。「ビジネスロジックを@ichi-h/elmishに依存させることはクリーンではない！」これは間違いなく正しく、それがこのライブラリの使用を推奨しない理由です。
 
