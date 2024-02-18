@@ -32,9 +32,9 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
-        <button onClick={decrement}>decrement</button>
+        <button onClick={decrement}>-</button>
         <button onClick={reset}>reset</button>
-        <button onClick={increment}>increment</button>
+        <button onClick={increment}>+</button>
         {model.loader === "loading" && <p>loading...</p>}
         {model.loader === "idle" && <p>count is {model.count}</p>}
       </div>
