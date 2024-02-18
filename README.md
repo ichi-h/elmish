@@ -303,7 +303,7 @@ After hearing all this, you may be thinking: "Having business logic dependent on
 
 To begin with, this library was created for me to use design patterns written in Vanilla TypeScript in my projects to keep the business logic clean when I develop web front-ends. Therefore, it is not a big problem if the products I create depend on this library, because I have complete control over this.
 
-If you are particular about clean, you can fork @ichi-h/elmish and use it. If you are not particular about Elm Architecture, you can refer to designs such as DDD and Clean Architecture.
+If you insist on clean, you can refer to designs such as DDD or Clean Architecture. If you must use this library, we recommend that you fork @ichi-h/elmish and use it.
 
 ## License
 
