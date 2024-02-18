@@ -303,7 +303,7 @@ The benefit of using @ichi-h/elmish is almost the same as separating the busines
 
 ## Why NOT use @ichi-h/elmish?
 
-After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely true and @ichi-h/elmish should not be used if cleanliness of code is important.
+After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely correct. If there are destructive changes to this library, you may need to rewrite the business logic. Therefore, if clean code is important to you, you should not use @ichi-h/elmish.
 
 If you insist on cleanliness, you can refer to designs such as DDD and Clean Architecture, and if you are more concerned about Elm Architecture, you can also implement a mechanism like this library on your own.
 
