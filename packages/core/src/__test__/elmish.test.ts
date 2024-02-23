@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach } from "vitest";
 
 import { elmish } from "../elmish";
-import { Init, Key, Update } from "../types";
+import { Init, Update } from "../types";
 
 type Model = {
   count: number;
@@ -54,7 +54,6 @@ const update: Update<Model, Msg> = (model, msg) => {
 
 describe("elmish test", () => {
   let model: Model = { count: 0 };
-  const key: Key<Model> = Symbol();
 
   const updateViewMock = (newModel: Model) => (model = newModel);
 
@@ -63,15 +62,15 @@ describe("elmish test", () => {
   });
 
   test("send message", () => {
-    const useElement = elmish();
-    const send = useElement(key, model, update, updateViewMock);
+    const useElement = elmish<Model, Msg>();
+    const send = useElement(model, update, updateViewMock);
     send({ type: "increment" });
     expect(model.count).toBe(1);
   });
 
   test("send async message", async () => {
-    const useElement = elmish();
-    const send = useElement(key, model, update, updateViewMock);
+    const useElement = elmish<Model, Msg>();
+    const send = useElement(model, update, updateViewMock);
     for (let i = 0; i < 10; i++) {
       send({ type: "asyncIncrement" });
       send({ type: "asyncDecrement" });
@@ -90,8 +89,8 @@ describe("elmish test", () => {
           }, 1);
         }),
     ];
-    const useElement = elmish();
-    useElement(key, init, update, updateViewMock);
+    const useElement = elmish<Model, Msg>();
+    useElement(init, update, updateViewMock);
     await new Promise((resolve) => setTimeout(resolve, 10));
     expect(model.count).toBe(1);
   });

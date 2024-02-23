@@ -1,6 +1,3 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export interface Key<_T> extends Symbol {}
-
 export type BaseMessage = { type: string };
 
 export type Send<Msg extends BaseMessage> = (message: Msg) => void;
@@ -23,3 +20,9 @@ export type View<Model> = (model: Model) => void;
 export type Init<Model, Msg extends BaseMessage> =
   | Model
   | (() => ReturnModel<Model, Msg>);
+
+export type UseElement<Model, Msg extends BaseMessage> = (
+  init: Init<Model, Msg>,
+  update: Update<Model, Msg>,
+  view: (model: Model) => void,
+) => Send<Msg>;
