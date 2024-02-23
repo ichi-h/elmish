@@ -1,4 +1,4 @@
-import { Key } from "@ichi-h/elmish";
+import { elmish } from "@ichi-h/elmish";
 
 export type Model = {
   count: number;
@@ -16,4 +16,4 @@ export const init: Model = {
   loader: "idle",
 } as const;
 
-export const key: Key<Model> = Symbol();
+export const useElement = elmish<Model, Message>();

@@ -1,5 +1,4 @@
-import { Model, init, key } from "./data";
-import { useElement } from "./libs/elmish";
+import { Model, init, useElement } from "./data";
 import { update } from "./update";
 
 export function setupCounter(
@@ -16,7 +15,7 @@ export function setupCounter(
     }
   };
 
-  const send = useElement(key, init, update, updateView);
+  const send = useElement(init, update, updateView);
 
   incrementBtn.addEventListener("click", () => send({ type: "increment" }));
   decrementBtn.addEventListener("click", () => send({ type: "decrement" }));

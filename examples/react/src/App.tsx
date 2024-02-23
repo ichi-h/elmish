@@ -5,14 +5,13 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 
 import "./App.css";
-import { init, key } from "./data";
-import { useElement } from "./lib/elmish";
+import { init, useElement } from "./data";
 import { update } from "./update";
 
 function App() {
   const [model, setModel] = useState(init);
 
-  const send = useElement(key, model, update, setModel);
+  const send = useElement(model, update, setModel);
 
   const increment = () => send({ type: "increment" });
 
