@@ -2,7 +2,7 @@
 
 [![LICENSE](https://img.shields.io/github/license/ichi-h/elmish)](./LICENSE) [![npm version](https://img.shields.io/npm/v/@ichi-h/elmish.svg?style=flat)](https://www.npmjs.com/package/@ichi-h/elmish)
 
-@ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。@ichi-h/elmishはビジネスロジックをその他の複雑な要因から分離し、リーダブルに保つことを目的としています。
+@ichi-h/elmishは、Elm Architectureを参考にした、UIフレームワークやUIライブラリに依存しない状態管理ライブラリです。ビジネスロジックをその他の複雑な要因から分離し、リーダブルに保つことを目的としています。
 
 ## Usage
 
@@ -12,22 +12,13 @@
 npm install @ichi-h/elmish
 ```
 
-### Setup
-
-```typescript
-// libs/elmish.ts
-import { elmish } from "@ichi-h/elmish";
-
-const useElement = elmish();
-```
-
 [#write-logic]: write-logic
 
 ### Write logic
 
 ```typescript
 // data.ts
-import { Key } from "@ichi-h/elmish";
+import { elmish } from "@ichi-h/elmish";
 
 export type Model = {
   count: number;
@@ -45,7 +36,7 @@ export const init: Model = {
   loader: "idle",
 } as const;
 
-export const key: Key<Model> = Symbol();
+export const useElement = elmish<Model, Message>();
 ```
 
 ```typescript
@@ -90,8 +81,7 @@ export const update: Update<Model, Message> = (model, message) => {
 
 ```typescript
 // counter.ts
-import { Model, init, key } from "./data";
-import { useElement } from "./libs/elmish";
+import { Model, init, useElement } from "./data";
 import { update } from "./update";
 
 export function setupCounter(
@@ -108,7 +98,7 @@ export function setupCounter(
     }
   };
 
-  const send = useElement(key, init, update, updateView);
+  const send = useElement(init, update, updateView);
 
   incrementBtn.addEventListener("click", () => send({ type: "increment" }));
   decrementBtn.addEventListener("click", () => send({ type: "decrement" }));
@@ -144,14 +134,13 @@ setupCounter(
 ### Use in React
 
 ```tsx
-import { init, key } from "./data";
-import { useElement } from "./lib/elmish";
+import { init, useElement } from "./data";
 import { update } from "./update";
 
 export const App = () => {
   const [model, setModel] = useState(init);
 
-  const send = useElement(key, model, update, setModel);
+  const send = useElement(model, update, setModel);
 
   const increment = () => send({ type: "increment" });
   const decrement = () => send({ type: "decrement" });
@@ -177,14 +166,13 @@ export const App = () => {
 <script setup lang="ts">
 import { ref } from "vue";
 
-import { useElement } from "./libs/elmish";
-import { Model, init, key } from "./data";
+import { Model, init, useElement } from "./data";
 import { update } from "./update";
 
 const model = ref(init);
 const updateView = (newModel: Model) => (model.value = newModel);
 
-const send = useElement(key, model.value, update, updateView);
+const send = useElement(model.value, update, updateView);
 
 const increment = () => send({ type: "increment" });
 const decrement = () => send({ type: "decrement" });
@@ -263,9 +251,9 @@ export const App = () => {
 };
 ```
 
-ここで注目したい点は、上記のユースケースの中にReactは現れないということです。Reactはあくまでユースケースを実現する手段ですので、それは当たり前のことです。
+注目したい点は、上記のユースケースの中にReactは現れないということです。Reactはあくまでユースケースを実現する手段ですので、当たり前のことですね。
 
-では実際のコードはどのようになっているでしょうか？　countの値を管理するためにuseStateを使っており、これはカウンターが実現すべきユースケースのビジネスロジックがReactのエコシステムに埋め込まれた状態になっています。
+では実際のコードはどのようになっているでしょうか？　countの値を管理するためにuseStateを使っておりますが、これはカウンターが実現すべきユースケースのビジネスロジックがReactのエコシステムに埋め込まれた状態になっていると言えるでしょう。
 
 これの何が問題なのでしょうか？
 
@@ -301,7 +289,7 @@ export const App = () => {
 
 ## なぜ@ichi-h/elmishを「使わない」のか？
 
-ここまでの話を聞いて、以下のように考える人がいるかもしれません。「ビジネスロジックを@ichi-h/elmishに依存させることはクリーンではない！」これは間違いなく正しいことです。もしこのライブラリに破壊的変更があった場合、ビジネスロジックを書き直す必要があるかもしれません。そのため、コードのクリーンさを重視する場合は@ichi-h/elmishを使うべきではありません。
+ここまでの話を聞いて、以下のように考える人がいるかもしれません。「ビジネスロジックを@ichi-h/elmishに依存させることはクリーンではない！」これは間違いなく正しいことです。もしこのライブラリに破壊的変更があった場合、ビジネスロジックを書き直す必要があるかもしれません。そのため、コードのクリーンさを重視する場合はこのライブラリを使うべきではありません。
 
 もしクリーンにこだわるのであれば、DDDやClean Architectureなどの設計を参考にしたり、Elm Architectureにこだわるのであれば、このライブラリのような仕組みを独自で実装してしまうのも一つの手です。
 

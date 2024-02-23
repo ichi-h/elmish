@@ -4,7 +4,7 @@
 
 日本語版は[こちら](./README.ja.md)
 
-@ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. @ichi-h/elmish aims to keep business logic separate from other complex factors and keep it readable.
+@ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. This library aims to keep business logic separate from other complex factors and keep it readable.
 
 ## Usage
 
@@ -14,22 +14,13 @@
 npm install @ichi-h/elmish
 ```
 
-### Setup
-
-```typescript
-// libs/elmish.ts
-import { elmish } from "@ichi-h/elmish";
-
-const useElement = elmish();
-```
-
 [#write-logic]: write-logic
 
 ### Write logic
 
 ```typescript
 // data.ts
-import { Key } from "@ichi-h/elmish";
+import { elmish } from "@ichi-h/elmish";
 
 export type Model = {
   count: number;
@@ -47,7 +38,7 @@ export const init: Model = {
   loader: "idle",
 } as const;
 
-export const key: Key<Model> = Symbol();
+export const useElement = elmish<Model, Message>();
 ```
 
 ```typescript
@@ -92,8 +83,7 @@ export const update: Update<Model, Message> = (model, message) => {
 
 ```typescript
 // counter.ts
-import { Model, init, key } from "./data";
-import { useElement } from "./libs/elmish";
+import { Model, init, useElement } from "./data";
 import { update } from "./update";
 
 export function setupCounter(
@@ -110,7 +100,7 @@ export function setupCounter(
     }
   };
 
-  const send = useElement(key, init, update, updateView);
+  const send = useElement(init, update, updateView);
 
   incrementBtn.addEventListener("click", () => send({ type: "increment" }));
   decrementBtn.addEventListener("click", () => send({ type: "decrement" }));
@@ -146,14 +136,13 @@ setupCounter(
 ### Use in React
 
 ```tsx
-import { init, key } from "./data";
-import { useElement } from "./lib/elmish";
+import { init, useElement } from "./data";
 import { update } from "./update";
 
 export const App = () => {
   const [model, setModel] = useState(init);
 
-  const send = useElement(key, model, update, setModel);
+  const send = useElement(model, update, setModel);
 
   const increment = () => send({ type: "increment" });
   const decrement = () => send({ type: "decrement" });
@@ -179,14 +168,13 @@ export const App = () => {
 <script setup lang="ts">
 import { ref } from "vue";
 
-import { useElement } from "./libs/elmish";
-import { Model, init, key } from "./data";
+import { Model, init, useElement } from "./data";
 import { update } from "./update";
 
 const model = ref(init);
 const updateView = (newModel: Model) => (model.value = newModel);
 
-const send = useElement(key, model.value, update, updateView);
+const send = useElement(model.value, update, updateView);
 
 const increment = () => send({ type: "increment" });
 const decrement = () => send({ type: "decrement" });
@@ -303,7 +291,7 @@ The benefit of using @ichi-h/elmish is almost the same as separating the busines
 
 ## Why NOT use @ichi-h/elmish?
 
-After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely correct. If there are destructive changes to this library, you may need to rewrite the business logic. Therefore, if clean code is important to you, you should not use @ichi-h/elmish.
+After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely correct. If there are destructive changes to this library, you may need to rewrite the business logic. Therefore, if clean code is important to you, you should not use this library.
 
 If you insist on cleanliness, you can refer to designs such as DDD and Clean Architecture, and if you are more concerned about Elm Architecture, you can also implement a mechanism like this library on your own.
 
