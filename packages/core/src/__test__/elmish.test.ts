@@ -1,4 +1,6 @@
-import { describe, test, expect, beforeEach } from "vitest";
+// @vitest-environment jsdom
+
+import { describe, test, expect, vi } from "vitest";
 
 import { elmish } from "../elmish";
 import { Init, Update } from "../types";
@@ -53,45 +55,74 @@ const update: Update<Model, Msg> = (model, msg) => {
 };
 
 describe("elmish test", () => {
-  let model: Model = { count: 0 };
+  const initModel: Model = { count: 0 };
 
-  const updateViewMock = (newModel: Model) => (model = newModel);
-
-  beforeEach(() => {
-    model = { count: 0 };
-  });
+  const rendererMock = vi.fn();
 
   test("send message", () => {
-    const useElement = elmish<Model, Msg>();
-    const send = useElement(model, update, updateViewMock);
-    send({ type: "increment" });
-    expect(model.count).toBe(1);
+    const { useElement, send } = elmish<Model, Msg, HTMLElement>(rendererMock);
+
+    const button = document.createElement("button");
+    button.addEventListener("click", () => send({ type: "increment" }));
+    const p = document.createElement("p");
+
+    useElement(initModel, update, ({ model }) => {
+      p.innerText = model.count.toString();
+      const div = document.createElement("div");
+      div.appendChild(button);
+      div.appendChild(p);
+      return div;
+    });
+
+    button.click();
+
+    expect(p.innerText).toBe("1");
   });
 
   test("send async message", async () => {
-    const useElement = elmish<Model, Msg>();
-    const send = useElement(model, update, updateViewMock);
-    for (let i = 0; i < 10; i++) {
-      send({ type: "asyncIncrement" });
-      send({ type: "asyncDecrement" });
-    }
+    const { useElement, send } = elmish<Model, Msg, HTMLElement>(rendererMock);
+
+    const button = document.createElement("button");
+    button.addEventListener("click", () => {
+      for (let i = 0; i < 5; i++) {
+        send({ type: "asyncIncrement" });
+      }
+      for (let i = 0; i < 2; i++) {
+        send({ type: "asyncDecrement" });
+      }
+    });
+    const p = document.createElement("p");
+
+    useElement(initModel, update, ({ model }) => {
+      p.innerText = model.count.toString();
+      const div = document.createElement("div");
+      div.appendChild(button);
+      div.appendChild(p);
+      return div;
+    });
+
+    button.click();
     await new Promise((resolve) => setTimeout(resolve, 100));
-    expect(model.count).toBe(0);
+
+    expect(p.innerText).toBe("3");
   });
 
   test("initialize element with function", async () => {
     const init: Init<Model, Msg> = () => [
-      model,
-      async () =>
-        new Promise((resolve) => {
-          setTimeout(() => {
-            resolve({ type: "increment" });
-          }, 1);
-        }),
+      initModel,
+      async () => new Promise((resolve) => resolve({ type: "increment" })),
     ];
-    const useElement = elmish<Model, Msg>();
-    useElement(init, update, updateViewMock);
+    const { useElement } = elmish<Model, Msg, HTMLElement>(rendererMock);
+
+    const p = document.createElement("p");
+
+    useElement(init, update, ({ model }) => {
+      p.innerText = model.count.toString();
+      return p;
+    });
+
     await new Promise((resolve) => setTimeout(resolve, 10));
-    expect(model.count).toBe(1);
+
+    expect(p.innerText).toBe("1");
   });
 });
