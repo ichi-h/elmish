@@ -4,7 +4,11 @@
 
 日本語版は[こちら](./README.ja.md)
 
-@ichi-h/elmish is a state management library that is independent of UI frameworks and UI libraries, with reference to Elm Architecture. This library aims to keep business logic separate from other complex factors and keep it readable.
+@ichi-h/elmish is a library for state management without depending on UI frameworks or UI libraries while keeping the Elm Architecture interface as much as possible.
+
+## WARNING
+
+**THIS LIBRARY IS HIGHLY EXPERIMENTAL AS IT IS DESIGNED FOR HYPOTHESIS TESTING PURPOSES. ITS USE IN A PRODUCTION ENVIRONMENT IS STRONGLY DISCOURAGED.**
 
 ## Usage
 
@@ -14,6 +18,45 @@
 npm install @ichi-h/elmish
 ```
 
+### Define renderer
+
+Define a function that renders the element returned by the View function to the browser.
+
+#### In Vanilla TypeScript
+
+```typescript
+export const renderer = (html: HTMLElement) => {
+  document.getElementById("app")!.replaceWith(html);
+};
+```
+
+#### In React
+
+```tsx
+import React from "react";
+import ReactDOM from "react-dom/client";
+
+const root = ReactDOM.createRoot(document.getElementById("root")!);
+
+export const renderer = (html: React.ReactElement) => {
+  root.render(<React.StrictMode>{html}</React.StrictMode>);
+};
+```
+
+#### In Vue
+
+```typescript
+import { VNode, createApp } from "vue";
+
+let app = createApp({});
+
+export const renderer = (html: VNode) => {
+  if (app._container) app.unmount();
+  app = createApp(html);
+  app.mount("#app");
+};
+```
+
 [#write-logic]: write-logic
 
 ### Write logic
@@ -21,6 +64,12 @@ npm install @ichi-h/elmish
 ```typescript
 // data.ts
 import { elmish } from "@ichi-h/elmish";
+
+import { renderer } from "./renderer";
+
+// Change the Html type to match the UI library you are using.
+// The following is an example using HTMLElement.
+type Html = HTMLElement;
 
 export type Model = {
   count: number;
@@ -38,7 +87,7 @@ export const init: Model = {
   loader: "idle",
 } as const;
 
-export const useElement = elmish<Model, Message>();
+export const { useElement, send } = elmish<Model, Message, Html>(renderer);
 ```
 
 ```typescript
@@ -82,53 +131,47 @@ export const update: Update<Model, Message> = (model, message) => {
 ### Use in Vanilla TypeScript
 
 ```typescript
-// counter.ts
-import { Model, init, useElement } from "./data";
+import { init, send, useElement } from "./data";
 import { update } from "./update";
 
-export function setupCounter(
-  counter: HTMLParagraphElement,
-  incrementBtn: HTMLButtonElement,
-  decrementBtn: HTMLButtonElement,
-  resetBtn: HTMLButtonElement,
-) {
-  const updateView = (newModel: Model) => {
-    if (newModel.loader === "loading") {
-      counter.innerHTML = "loading...";
-    } else {
-      counter.innerHTML = `count is ${newModel.count}`;
-    }
-  };
+useElement(init, update, ({ model }) => {
+  const app = document.createElement("div");
+  app.id = "app";
 
-  const send = useElement(init, update, updateView);
-
+  const incrementBtn = document.createElement("button");
+  incrementBtn.id = "increment";
+  incrementBtn.type = "button";
+  incrementBtn.innerText = "+";
   incrementBtn.addEventListener("click", () => send({ type: "increment" }));
+
+  const decrementBtn = document.createElement("button");
+  decrementBtn.id = "decrement";
+  decrementBtn.type = "button";
+  decrementBtn.innerText = "-";
   decrementBtn.addEventListener("click", () => send({ type: "decrement" }));
+
+  const resetBtn = document.createElement("button");
+  resetBtn.id = "reset";
+  resetBtn.type = "button";
+  resetBtn.innerText = "reset";
   resetBtn.addEventListener("click", () => send({ type: "startReset" }));
 
-  send({ type: "startReset" });
-}
-```
+  const counter = document.createElement("p");
+  counter.id = "counter";
+  counter.classList.add("read-the-docs");
+  if (model.loader === "loading") {
+    counter.innerText = "loading...";
+  } else {
+    counter.innerText = `count is ${model.count}`;
+  }
 
-```typescript
-// main.ts
-import { setupCounter } from "./counter";
+  app.appendChild(decrementBtn);
+  app.appendChild(resetBtn);
+  app.appendChild(incrementBtn);
+  app.appendChild(counter);
 
-document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
-  <div>
-    <button id="decrement" type="button">-</button>
-    <button id="reset" type="button">reset</button>
-    <button id="increment" type="button">+</button>
-    <p id="counter"></p>
-  </div>
-`;
-
-setupCounter(
-  document.querySelector<HTMLParagraphElement>("#counter")!,
-  document.querySelector<HTMLButtonElement>("#increment")!,
-  document.querySelector<HTMLButtonElement>("#decrement")!,
-  document.querySelector<HTMLButtonElement>("#reset")!,
-);
+  return app;
+});
 ```
 
 [#use-in-react]: use-in-react
@@ -136,14 +179,10 @@ setupCounter(
 ### Use in React
 
 ```tsx
-import { init, useElement } from "./data";
+import { init, useElement, send } from "./data";
 import { update } from "./update";
 
-export const App = () => {
-  const [model, setModel] = useState(init);
-
-  const send = useElement(model, update, setModel);
-
+useElement(init, update, ({ model }) => {
   const increment = () => send({ type: "increment" });
   const decrement = () => send({ type: "decrement" });
   const reset = () => send({ type: "startReset" });
@@ -157,7 +196,7 @@ export const App = () => {
       {model.loader === "idle" && <p>count is {model.count}</p>}
     </div>
   );
-};
+});
 ```
 
 [#use-in-vue]: use-in-vue
@@ -166,30 +205,38 @@ export const App = () => {
 
 ```vue
 <script setup lang="ts">
-import { ref } from "vue";
+import { Model, send } from "./data";
 
-import { Model, init, useElement } from "./data";
-import { update } from "./update";
+defineProps<{
+  model: Model;
+}>();
 
-const model = ref(init);
-const updateView = (newModel: Model) => (model.value = newModel);
-
-const send = useElement(model.value, update, updateView);
+const msg = "Vite + Vue";
 
 const increment = () => send({ type: "increment" });
+
 const decrement = () => send({ type: "decrement" });
+
 const reset = () => send({ type: "startReset" });
 </script>
 
 <template>
-  <div>
-    <button type="button" @click="decrement">-</button>
-    <button type="button" @click="reset">reset</button>
-    <button type="button" @click="increment">+</button>
-    <p v-if="model.loader === 'loading'">loading...</p>
-    <p v-else-if="model.loader === 'idle'">count is {{ model.count }}</p>
-  </div>
+  <button type="button" @click="decrement">-</button>
+  <button type="button" @click="reset">reset</button>
+  <button type="button" @click="increment">+</button>
+  <p v-if="model.loader === 'loading'">loading...</p>
+  <p v-else-if="model.loader === 'idle'">count is {{ model.count }}</p>
 </template>
+```
+
+```typescript
+import { h } from "vue";
+
+import App from "./App.vue";
+import { init, useElement } from "./data";
+import { update } from "./update";
+
+useElement(init, update, ({ model }) => h(App, { model }));
 ```
 
 ## What is Elm Architecture?
@@ -212,88 +259,53 @@ I'm not good enough to explain this, so I quote the documentation for an overvie
 >
 > \- [The Elm Architecture · An Introduction to Elm](https://guide.elm-lang.org/architecture/)
 
-See [Guide to the Elm Language](https://guide.elm-lang.org/) for more information. It is very informative!
+See [Guide to the Elm Language](https://guide.elm-lang.org/) for more information.
 
-## @ichi-h/elmish's philosophy.
+## Purpose of this library
 
-### Business logic married with UI library
+The goal of @ichi-h/elmish is to **validate the pluginization of UI libraries through view dependency inversion**.
 
-Many state management systems in this world are designed to rely on UI libraries. This is necessary to achieve a declarative UI. This is necessary for a declarative UI, because when the state is updated, the UI can automatically change without manipulating the DOM. This is very convenient!
+Declarative UI is, simply put, **a concept that automatically updates the UI when the state is updated, without having to think about procedural operations such as touching the DOM**. This concept is based on the fact that **the logic to update the state can be separated from the logic to update the UI**.
 
-However, this often leads to tightly coupling business logic with UI libraries and state management systems. Let's write a simple counter application that satisfies the following requirements in the common React writing style.
+In other words, the dependencies are not like this,
 
-- Clicking the + button increases the count by 1.
-- Clicking the - button decreases the count by 1.
-- When the reset button is clicked, the count on the screen changes to "loading..." and after 1 second, the count becomes 0 and the count is displayed again.
-
-```tsx
-export const App = () => {
-  const [count, setCount] = useState(0);
-  const [loader, setLoader] = useState<"idle" | "loading">("idle");
-
-  const increment = () => setCount((prev) => prev + 1);
-  const decrement = () => setCount((prev) => prev - 1);
-  const reset = () => {
-    setLoader("loading");
-    setTimeout(() => {
-      setCount(0);
-      setLoader("idle");
-    }, 1000);
-  };
-
-  return (
-    <div>
-      <button onClick={decrement}>-</button>
-      <button onClick={reset}>reset</button>
-      <button onClick={increment}>+</button>
-      {loader === "loading" && <p>loading...</p>}
-      {loader === "idle" && <p>count is {count}</p>}
-    </div>
-  );
-};
+```mermaid
+flowchart BT
+  subgraph Logic[Complex Logic]
+    direction LR
+    Update <--> View
+  end
+  Logic --> Model
 ```
 
-It is important to note that React does not appear in any of the above use cases, which is natural since React is only a means to achieve the use cases.
+but are as follows.
 
-So what does the actual code look like? I used useState to manage the value of count. This means that the business logic of the use case that the counter should implement is embedded in the React ecosystem.
+```mermaid
+flowchart BT
+  Update --> Model
+  View --> Model
+```
 
-What is the problem with this?
+The dependencies of Model, View and Update in Elm Architecture are exactly in the above form.
 
-For example, if there are some breaking changes in React, you need to fix that, but if your business logic is tightly coupled with React, you are very likely to rewrite the business logic together, **even though the business logic has not changed.**
+By the way, if Update and View are not dependent on each other, don't you think we could have "Model + Update **and** View"?
 
-And what if a more attractive UI library than React appears and you have to replace it? This is very hard. Because you would literally have to rewrite almost all of the code.
+```mermaid
+flowchart BT
+  subgraph "Application Logic"
+    Update --> Model
+    IView[View Interface] --> Model
+  end
+  subgraph "UI Framework"
+    View -. "DI" .-> IView
+  end
+```
 
-Also, if the React-specific writing style is included in the business logic, it may become noise and make it difficult to see the essential aspects of the logic.
+In other words, **it should be possible to separate the application logic from the UI framework by solidifying the application logic with Model and Update and injecting entities externally toward the abstracted View.** I verified this hypothesis through @ichi-h/elmish and was able to realize it.
 
-Of course, if the example were this simple, it would not be a problem. However, production business logic is much more complex, and state management can be cumbersome. In such an environment, the separation of UI library and business logic becomes more important.
+## Drawbacks
 
-### Keep your business logic readable!
-
-In @ichi-h/elmish, the UI update logic is injected from the outside so that the business logic can be decoupled from the UI library.
-
-As shown in [Usage example](#write-logic), React does not appear in data.ts and update.ts. Let's concentrate on writing business logic here.
-
-Then choose what method to use to display the UI, depending on the situation.
-
-- [vanilla-typescript](#use-in-vanilla-typescript)
-- [react](#use-in-react)
-- [vue](#use-in-vue)
-- etc...
-
-## Why use @ichi-h/elmish?
-
-The benefit of using @ichi-h/elmish is almost the same as separating the business logic from the UI library. In other words:
-
-- Concentrate on writing business logic based on the Elm Architecture without worrying about how to write UI libraries.
-- Even if there are disruptive changes to the UI library, your business logic can be protected from those changes.
-- Eliminating the UI library-specific writing style keeps _noise_ out of your business logic and keeps the code easy to understand.
-- Your business logic can be reused when replacing UI libraries.
-
-## Why NOT use @ichi-h/elmish?
-
-After hearing all this, you may be thinking: "Having business logic dependent on @ichi-h/elmish is not clean!" This is definitely correct. If there are destructive changes to this library, you may need to rewrite the business logic. Therefore, if clean code is important to you, you should not use this library.
-
-If you insist on cleanliness, you can refer to designs such as DDD and Clean Architecture, and if you are more concerned about Elm Architecture, you can also implement a mechanism like this library on your own.
+Unfortunately, this library has very poor performance because it executes the View function every time the state is updated and re-render all the DOM in the browser. It may be possible to improve the performance somewhat by devising the renderer function, but even then, the performance will not be as good as expected.
 
 ## License
 
