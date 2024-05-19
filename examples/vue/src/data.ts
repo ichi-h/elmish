@@ -1,4 +1,7 @@
 import { elmish } from "@ichi-h/elmish";
+import { VNode } from "vue";
+
+import { renderer } from "./renderer";
 
 export type Model = {
   count: number;
@@ -16,4 +19,4 @@ export const init: Model = {
   loader: "idle",
 } as const;
 
-export const useElement = elmish<Model, Message>();
+export const { useElement, send } = elmish<Model, Message, VNode>(renderer);

@@ -1,5 +1,17 @@
 <script setup lang="ts">
-import HelloWorld from "./components/HelloWorld.vue";
+import { Model, send } from "./data";
+
+defineProps<{
+  model: Model;
+}>();
+
+const msg = "Vite + Vue";
+
+const increment = () => send({ type: "increment" });
+
+const decrement = () => send({ type: "decrement" });
+
+const reset = () => send({ type: "startReset" });
 </script>
 
 <template>
@@ -11,7 +23,15 @@ import HelloWorld from "./components/HelloWorld.vue";
       <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
     </a>
   </div>
-  <HelloWorld msg="Vite + Vue" />
+  <h1>{{ msg }}</h1>
+
+  <div class="card">
+    <button type="button" @click="decrement">-</button>
+    <button type="button" @click="reset">reset</button>
+    <button type="button" @click="increment">+</button>
+    <p v-if="model.loader === 'loading'">loading...</p>
+    <p v-else-if="model.loader === 'idle'">count is {{ model.count }}</p>
+  </div>
 </template>
 
 <style scoped>

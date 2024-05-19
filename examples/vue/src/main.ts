@@ -1,6 +1,8 @@
-import { createApp } from "vue";
+import { h } from "vue";
 
 import "./style.css";
 import App from "./App.vue";
+import { init, useElement } from "./data";
+import { update } from "./update";
 
-createApp(App).mount("#app");
+useElement(init, update, ({ model }) => h(App, { model }));
