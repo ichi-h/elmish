@@ -1,9 +1,0 @@
-/**/*.config.ts
-/**/*.config.js
-
-/**/node_modules
-
-/**/dist
-/**/build
-
-/**/.direnv

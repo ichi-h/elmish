@@ -15,7 +15,7 @@
         devShells = {
           default = packages.mkShell {
             buildInputs = with packages; [
-              nodejs_22
+              nodejs_24
               nodePackages.pnpm
             ];
 
