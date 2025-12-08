@@ -1,5 +1,4 @@
 import { Update } from "@ichi-h/elmish";
-
 import { Model, Message } from "./data";
 
 export const update: Update<Model, Message> = (model, message) => {

@@ -1,5 +1,4 @@
 import { describe, test, expect, beforeEach } from "vitest";
-
 import { elmish } from "../elmish";
 import { Init, Update } from "../types";
 
