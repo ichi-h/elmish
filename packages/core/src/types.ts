@@ -15,14 +15,14 @@ export type Update<Model, Msg extends BaseMessage> = (
   message: Msg,
 ) => ReturnModel<Model, Msg>;
 
-export type View<Model, Html> = ({ model }: { model: Model }) => Html;
+export type View<Model> = (model: Model) => void;
 
 export type Init<Model, Msg extends BaseMessage> =
   | Model
   | (() => ReturnModel<Model, Msg>);
 
-export type UseElement<Model, Msg extends BaseMessage, Html> = (
+export type UseElement<Model, Msg extends BaseMessage> = (
   init: Init<Model, Msg>,
   update: Update<Model, Msg>,
-  view: View<Model, Html>,
-) => void;
+  view: (model: Model) => void,
+) => Send<Msg>;
