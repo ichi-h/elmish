@@ -1,14 +1,22 @@
+import { useState } from "react";
+
 import reactLogo from "./assets/react.svg";
 
 import viteLogo from "/vite.svg";
 
 import "./App.css";
-import { init, useElement, send } from "./data";
+import { init, useElement } from "./data";
 import { update } from "./update";
 
-useElement(init, update, ({ model }) => {
+function App() {
+  const [model, setModel] = useState(init);
+
+  const send = useElement(model, update, setModel);
+
   const increment = () => send({ type: "increment" });
+
   const decrement = () => send({ type: "decrement" });
+
   const reset = () => send({ type: "startReset" });
 
   return (
@@ -34,4 +42,6 @@ useElement(init, update, ({ model }) => {
       </p>
     </>
   );
-});
+}
+
+export default App;
