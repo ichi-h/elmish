@@ -1,7 +1,5 @@
-import { ElmishState, State } from "./state";
-import { BaseMessage, Init, Update, UseElement } from "./types";
-
-const deepClone = <T>(obj: T): T => JSON.parse(JSON.stringify(obj));
+import { ElmishState, type State } from "./state";
+import type { BaseMessage, Init, Update, UseElement } from "./types";
 
 const isModel = <Model, Msg extends BaseMessage>(
   init: Init<Model, Msg>,
@@ -21,14 +19,14 @@ export const elmish =
 
       if (!model) throw new Error("Model is not initialized");
 
-      const result = update(deepClone(model), message);
+      const result = update({ ...model }, message);
       const [newModel, cmd] = Array.isArray(result)
         ? [result[0], result[1]]
         : [result, undefined];
 
       state.put(newModel);
       view(newModel);
-      if (cmd) cmd().then(send);
+      cmd?.().then(send);
     };
 
     if (state.get() === undefined) {
@@ -40,7 +38,7 @@ export const elmish =
       })();
 
       state.put(initModel);
-      if (initCmd) initCmd().then(send);
+      initCmd?.().then(send);
     }
 
     return send;
